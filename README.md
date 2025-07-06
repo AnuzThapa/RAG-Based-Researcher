@@ -19,7 +19,7 @@ A smart research assistant built with **LangChain** and **LangGraph** that reads
 
 > _Add your screenshot here_
 
-![Screenshot Placeholder](./screenshot.png)
+![Screenshot Placeholder](./project.png)
 
 ---
 
@@ -40,3 +40,21 @@ A smart research assistant built with **LangChain** and **LangGraph** that reads
 ```bash
 git clone git@github.com:AnuzThapa/RAG-Based-Researcher.git
 cd RAG-Based-Researcher
+
+uv venv
+source .venv/bin/activate   # On Windows: .venv\Scripts\activate
+uv sync or uv pip install -r requirements.txt
+
+uv pip install -e .
+```
+
+## Start the FastAPI backend:
+```bash
+uvicorn app.main:app --reload
+```
+## Start the frontend (React/Vite):
+```bash
+cd frontend
+npm install
+npm run dev
+```
