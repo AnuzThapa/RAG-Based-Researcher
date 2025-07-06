@@ -1,34 +1,42 @@
-## MultiAgentic RAG
+# 🧠 RAG-Based Researcher
 
-This repository showcases the implementation of a **Multi-Agent Research RAG (Retriever-Augmented Generation) Tool** built with **LangGraph**. This project leverages the capabilities of agent-based frameworks to handle complex queries by breaking them down into manageable steps, dynamically utilizing tools, and ensuring response accuracy through error correction and hallucination checks.
+A smart research assistant built with **LangChain** and **LangGraph** that reads your **PDF documents**, understands your **questions**, and conducts **contextual research**.
 
-## Getting Started
+---
 
-To get started with this project, follow these steps:
+## 📌 Features
 
-First, clone the repository to your local machine:
+- ✅ Accepts PDF documents for document-grounded research.
+- 🧾 Automatically detects if the query relates to uploaded PDFs.
+- 💬 Handles general queries even if not document-related.
+- 🧭 Asks for clarification when user queries are ambiguous.
+- 🚫 Applies **hallucination checks** to ensure grounded answers.
+- 🧠 Built with **LangGraph** (multi-agent orchestration) and **LangChain** for retrieval and reasoning.
+
+---
+
+## 🖼️ Project Screenshot
+
+> _Add your screenshot here_
+
+![Screenshot Placeholder](./screenshot.png)
+
+---
+
+## 🧪 Example Use Cases
+
+- Research scientific articles
+- Summarize regulatory or legal documents
+- Answer domain-specific questions from technical PDFs
+- Provide fallback general knowledge responses
+- Prompt user if clarification is required
+
+---
+
+## 🛠️ Setup Instructions (with `uv`)
+
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/nicoladisabato/MultiAgenticRAG.git
-cd MultiAgenticRAG
-```
-
-```bash
-pip install -r requirements.txt
-```
-
-Then open the config.yml file located in the root directory of the project. Set the value of load_documents to **true** to ensure the necessary documents are loaded into the vector database:
-
-Then run:
-
-```bash
-python3 -m retriever.retriever
-```
-
-Once the PDF has been processed and indexed, you can start the application by running the following command:
-
-```bash
-python3 app.py
-```
-
-Now ask your question based on the document: https://sustainability.google/reports/google-2024-environmental-report/
+git clone git@github.com:AnuzThapa/RAG-Based-Researcher.git
+cd RAG-Based-Researcher
