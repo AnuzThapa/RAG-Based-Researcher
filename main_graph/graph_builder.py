@@ -11,7 +11,7 @@ from typing import Any, Literal, TypedDict, cast
 from langchain_core.messages import BaseMessage
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
-from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
 from langgraph.types import interrupt, Command
 from main_graph.graph_states import AgentState, Router, GradeHallucinations, InputState
 from utils.prompt import ROUTER_SYSTEM_PROMPT, RESEARCH_PLAN_SYSTEM_PROMPT, MORE_INFO_SYSTEM_PROMPT, GENERAL_SYSTEM_PROMPT, CHECK_HALLUCINATIONS, RESPONSE_SYSTEM_PROMPT
@@ -34,9 +34,9 @@ logging.getLogger("urllib3").propagate = False
 logging.getLogger("httpx").propagate = False
 
 
-GPT_4o_MINI = config["llm"]["gpt_4o_mini"]
-GPT_4o = config["llm"]["gpt_4o"]
-TEMPERATURE = config["llm"]["temperature"]
+# GPT_4o_MINI = config["llm"]["gpt_4o_mini"]
+# GPT_4o = config["llm"]["gpt_4o"]
+# TEMPERATURE = config["llm"]["temperature"]
 
 
 async def analyze_and_route_query(
@@ -54,7 +54,7 @@ async def analyze_and_route_query(
     Returns:
         dict[str, Router]: A dictionary containing the 'router' key with the classification result (classification type and logic).
     """
-    model = ChatOpenAI(model=GPT_4o, temperature=TEMPERATURE, streaming=True)
+    model = ChatOllama(model="llama3.2:latest", temperature=0.1, streaming=True)
     messages = [
         {"role": "system", "content": ROUTER_SYSTEM_PROMPT}
     ] + state.messages
@@ -90,8 +90,7 @@ def route_query(
         return "respond_to_general_query"
     else:
         raise ValueError(f"Unknown router type {_type}")
-    
-
+    # return "create_research_plan"
 
 async def create_research_plan(
     state: AgentState, *, config: RunnableConfig
@@ -111,7 +110,7 @@ async def create_research_plan(
 
         steps: list[str]
 
-    model = ChatOpenAI(model=GPT_4o_MINI, temperature=TEMPERATURE, streaming=True)
+    model = ChatOllama(model="llama3.2:latest", temperature=0.1, streaming=True)
     messages = [
         {"role": "system", "content": RESEARCH_PLAN_SYSTEM_PROMPT}
     ] + state.messages
@@ -136,7 +135,7 @@ async def ask_for_more_info(
     Returns:
         dict[str, list[str]]: A dictionary with a 'messages' key containing the generated response.
     """
-    model = ChatOpenAI(model=GPT_4o_MINI, temperature=TEMPERATURE, streaming=True)
+    model = ChatOllama(model="llama3.2:latest", temperature=0.1, streaming=True)
     system_prompt = MORE_INFO_SYSTEM_PROMPT.format(
         logic=state.router["logic"]
     )
@@ -161,7 +160,7 @@ async def conduct_research(state: AgentState) -> dict[str, Any]:
         - Invokes the researcher_graph with the first step of the research plan.
         - Updates the state with the retrieved documents and removes the completed step.
     """
-    result = await researcher_graph.ainvoke({"question": state.steps[0]}) #graph call directly
+    result = await researcher_graph.ainvoke({"question": state.steps[0]}) #subgraph call directly
     docs = result["documents"]
     step = state.steps[0]
     logging.info(f"\n{len(docs)} documents retrieved in total for the step: {step}.")
@@ -201,7 +200,7 @@ async def respond_to_general_query(
     Returns:
         dict[str, list[str]]: A dictionary with a 'messages' key containing the generated response.
     """
-    model = ChatOpenAI(model=GPT_4o_MINI, temperature=TEMPERATURE, streaming=True)
+    model = ChatOllama(model="llama3.2:latest", temperature=0.1, streaming=True)
     system_prompt = GENERAL_SYSTEM_PROMPT.format(
         logic=state.router["logic"]
     )
@@ -275,7 +274,7 @@ async def check_hallucinations(
     Returns:
         dict[str, Router]: A dictionary containing the 'router' key with the classification result (classification type and logic).
     """
-    model = ChatOpenAI(model=GPT_4o_MINI, temperature=TEMPERATURE, streaming=True)
+    model = ChatOllama(model="llama3.2:latest", temperature=0.1, streaming=True)
     system_prompt = CHECK_HALLUCINATIONS.format(
         documents=state.documents,
         generation=state.messages[-1]
@@ -325,7 +324,7 @@ async def respond(
         dict[str, list[str]]: A dictionary with a 'messages' key containing the generated response.
     """
     logging.info("--- RESPONSE GENERATION STEP ---")
-    model = ChatOpenAI(model=GPT_4o, temperature=TEMPERATURE, streaming=True)
+    model = ChatOllama(model="llama3.2:latest", temperature=0.1, streaming=True)
     context = format_docs(state.documents)
     prompt = RESPONSE_SYSTEM_PROMPT.format(context=context)
     messages = [{"role": "system", "content": prompt}] + state.messages
@@ -354,5 +353,6 @@ builder.add_edge("create_research_plan", "conduct_research")
 builder.add_conditional_edges("conduct_research", check_finished)
 
 builder.add_edge("respond", "check_hallucinations")
+# builder.add_edge("respond", END)
 
 graph = builder.compile(checkpointer=checkpointer)

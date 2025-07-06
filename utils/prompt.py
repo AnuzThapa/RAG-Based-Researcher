@@ -94,20 +94,71 @@ If the question is to be improved, understand the deep goal and generate 2 searc
 """
 
 
-CHECK_HALLUCINATIONS = """You are a grader assessing whether an LLM generation is supported by a set of retrieved facts. 
+CHECK_HALLUCINATIONS = """You are an evaluator checking if an LLM-generated answer is fully supported by a provided set of facts.
 
-Give a score between 1 or 0, where 1 means that the answer is supported by the set of facts.
+Your task:
 
-<Set of facts>
+- Give a binary score: **1** if the answer is supported by the facts, **0** if it is not.
+- Do **not** provide any explanation, reasoning, or commentary.
+- Only output a single number: **1** or **0**.
+
+Scoring rules:
+
+- **1** → The answer is factually supported by the provided facts (fully or mostly).
+- **0** → The answer contains any unsupported claims, contradictions, hallucinations, or facts not found in the provided set of facts.
+
+Special case:
+
+- If the set of facts is empty or missing, automatically give a score of **1**.
+
+---
+
+Set of Facts:
 {documents}
-<Set of facts/>
 
+---
 
-<LLM generation> 
+LLM Answer:
 {generation}
-<LLM generation/> 
 
+---
 
-If the set of facts is not provided, give the score 1.
+Output:
+[Only output the number 1 or 0]
 
 """
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# """You are a grader assessing whether an LLM generation is supported by a set of retrieved facts. 
+
+# # Give a score between 1 or 0, where 1 means that the answer is supported by the set of facts.
+
+# # <Set of facts>
+# # {documents}
+# # <Set of facts/>
+
+
+# # <LLM generation> 
+# # {generation}
+# # <LLM generation/> 
+
+
+# # If the set of facts is not provided, give the score 1.
+
+# # """

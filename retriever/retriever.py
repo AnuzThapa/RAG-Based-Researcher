@@ -1,9 +1,14 @@
+
+import os
+os.environ["HF_HUB_DISABLE_SYMLINKS"] = "true"
+
+
 from docling.document_converter import DocumentConverter
 from langchain_text_splitters import MarkdownHeaderTextSplitter
 from utils.utils import config
 
 from langchain_community.vectorstores import Chroma
-from langchain_openai import OpenAIEmbeddings
+from langchain_ollama import OllamaEmbeddings
 from langchain.retrievers import EnsembleRetriever, BM25Retriever
 from typing import List, Any
 import logging
@@ -63,7 +68,10 @@ class IndexBuilder:
         """
         Initializes the Chroma vectorstore with the provided documents and embeddings.
         """
-        embeddings = OpenAIEmbeddings()
+        embeddings = OllamaEmbeddings(
+            model="nomic-embed-text:latest",  # or "mxbai-embed-large", etc.
+            base_url="http://localhost:11434"  # Default Ollama endpoint
+        )
         try:
             logger.info("Building vectorstore.")
             self.vectorstore = Chroma.from_documents(
